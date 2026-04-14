@@ -217,6 +217,11 @@ components:
       title: QueryOffset
       type: integer
       minimum: 0
+    QueryOptions.Limit:
+      description: Limit option for queries
+      example: 50
+      title: QueryOptionsLimit
+      type: integer
   requestBodies:
     PetPayload:
       description: 'Request payload containing a pet object'

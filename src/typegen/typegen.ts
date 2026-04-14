@@ -246,7 +246,7 @@ const generateRootLevelAliases = (exportedTypes: ExportedType[]) => {
 
   for (const exportedType of exportedTypes) {
     if (exportedType.schemaRef.startsWith('#/components/schemas/')) {
-      const name = exportedType.schemaRef.replace('#/components/schemas/', '');
+      const name = convertKeyToTypeName(exportedType.schemaRef.replace('#/components/schemas/', ''));
       aliases.push([
         `export type ${name} = ${exportedType.path};`,
       ].join('\n'));

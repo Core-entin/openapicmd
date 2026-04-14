@@ -95,6 +95,11 @@ describe('generateTypesForDocument', () => {
       expect(aliases).toMatch('export type QueryLimit = Components.Schemas.QueryLimit;');
       expect(aliases).toMatch('export type QueryOffset = Components.Schemas.QueryOffset;');
     });
+
+    test('sanitizes schema names containing dots', async () => {
+      expect(aliases).toMatch('export type QueryOptions_Limit = Components.Schemas.QueryOptionsLimit;');
+      expect(aliases).not.toMatch('export type QueryOptions.Limit');
+    });
   });
 
 });
