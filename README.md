@@ -9,6 +9,8 @@
 
 <p align="center">openapicmd - The CLI for all things OpenAPI and Swagger</p>
 
+<p align="center"><i>Battle-tested in production. <a href="https://openapistack.co/users/">See who uses openapi-stack →</a></i></p>
+
 # Install
 
 ```
