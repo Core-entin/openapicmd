@@ -100,11 +100,6 @@ export const PRESETS = {
     removeServers: false, // openapi-client-axios uses servers
     firstServerOnly: true, // openapi-client-axios only uses first server
   },
-  openapi_backend: {
-    ...METADATA_ONLY,
-    removeExamples: false, // openapi-backend uses examples for mock responses
-    removeServers: true, // openapi-backend does not use servers
-  },
   default: METADATA_ONLY,
 }
 

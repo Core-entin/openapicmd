@@ -2,15 +2,11 @@ import { homedir } from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as YAML from 'js-yaml';
-import { SecurityConfig } from './security';
-import { TestConfig } from '../tests/tests';
 
 export const CONFIG_FILENAME = '.openapiconfig';
 
 export interface Config {
   definition?: string;
-  security?: SecurityConfig;
-  tests?: TestConfig;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

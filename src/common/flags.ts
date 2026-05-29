@@ -53,7 +53,7 @@ export const strip = () => ({
   strip: Flags.string({
     char: 'C',
     description: 'Strip optional metadata such as examples and descriptions from definition',
-    helpValue: 'default|all|openapi_client_axios|openapi_backend',
+    helpValue: 'default|all|openapi_client_axios',
   }),
 });
 

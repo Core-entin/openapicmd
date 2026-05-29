@@ -43,7 +43,6 @@ export async function generateTypesForDocument(definition: Document, opts: Typeg
   const rootLevelAliases = generateRootLevelAliases(exportedTypes);
 
   const clientOperationTypes = generateClientOperationMethodTypes(api, exportedTypes, opts);
-  const backendOperationTypes = generateBackendOperationMethodTypes(api, exportedTypes);
 
   const clientImports = [
     'import type {',
@@ -55,43 +54,7 @@ export async function generateTypesForDocument(definition: Document, opts: Typeg
     `} from 'openapi-client-axios';`,
   ].join('\n');
 
-  const backendImports = [
-    'import type {',
-    '  Context,',
-    '  UnknownParams,',
-    `} from 'openapi-backend';`,
-  ].join('\n');
-
-  return { clientImports, backendImports, schemaTypes, rootLevelAliases, clientOperationTypes, backendOperationTypes};
-}
-
-function generateBackendOperationMethodTypes(
-  api: OpenAPIClientAxios,
-  exportTypes: ExportedType[],
-) {
-  const operations = api.getOperations();
-
-  const operationTypes = operations
-    .map((op) => {
-      return op.operationId
-        ? generateHandlerOperationTypeForOperation(op, exportTypes)
-        : null;
-    })
-    .filter((op) => Boolean(op));
-
-
-  return [
-    'export interface Operations {',
-    ...operationTypes.map((op) => indent(op, 2)),
-    '}',
-    '',
-    // evil typescript magic for nice typing of openapi-backend operation handlers
-    'export type OperationContext<operationId extends keyof Operations> = Operations[operationId]["context"];',
-    'export type OperationResponse<operationId extends keyof Operations> = Operations[operationId]["response"];',
-    'export type HandlerResponse<ResponseBody, ResponseModel = Record<string, any>> = ResponseModel & { _t?: ResponseBody };',
-    'export type OperationHandlerResponse<operationId extends keyof Operations> = HandlerResponse<OperationResponse<operationId>>;',
-    'export type OperationHandler<operationId extends keyof Operations, HandlerArgs extends unknown[] = unknown[]> = (...params: [OperationContext<operationId>, ...HandlerArgs]) => Promise<OperationHandlerResponse<operationId>>;',
-  ].join('\n');
+  return { clientImports, schemaTypes, rootLevelAliases, clientOperationTypes };
 }
 
 function generateClientOperationMethodTypes(
@@ -137,39 +100,6 @@ function generateClientOperationMethodTypes(
   ].join('\n');
 }
 
-function generateHandlerOperationTypeForOperation(
-  operation: Operation,
-  exportTypes: ExportedType[],
-) {
-  const operationId = operation.operationId;
-  const normalizedOperationId = convertKeyToTypeName(operationId);
-
-  const requestBodyType = _.find(exportTypes, { schemaRef: `#/paths/${normalizedOperationId}/requestBody` })?.path || 'any';
-  const pathParameterType = _.find(exportTypes, { schemaRef: `#/paths/${normalizedOperationId}/pathParameters` })?.path || 'UnknownParams';
-  const queryParameterType = _.find(exportTypes, { schemaRef: `#/paths/${normalizedOperationId}/queryParameters` })?.path || 'UnknownParams';
-  const headerParameterType = _.find(exportTypes, { schemaRef: `#/paths/${normalizedOperationId}/headerParameters` })?.path || 'UnknownParams';
-  const cookieParameterType = _.find(exportTypes, { schemaRef: `#/paths/${normalizedOperationId}/cookieParameters` })?.path || 'UnknownParams';
-
-  const responseTypePaths = exportTypes
-   .filter(({ schemaRef }) => schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/`))
-   .map(({ path }) => path)
-  const responseType = !_.isEmpty(responseTypePaths) ? responseTypePaths.join(' | ') : 'any';
-
-  return [
-    `/**`,
-    ` * ${operation.method.toUpperCase()} ${operation.path}`,
-    ` */`,
-    `['${normalizedOperationId}']: {`,
-    indent(`requestBody: ${requestBodyType};`, 2),
-    indent(`params: ${pathParameterType};`, 2),
-    indent(`query: ${queryParameterType};`, 2),
-    indent(`headers: ${headerParameterType};`, 2),
-    indent(`cookies: ${cookieParameterType};`, 2),
-    indent(`context: Context<${requestBodyType}, ${pathParameterType}, ${queryParameterType}, ${headerParameterType}, ${cookieParameterType}>;`, 2),
-    indent(`response: ${responseType};`, 2),
-    '}',
-  ].join('\n');
-}
 
 function generateMethodForClientOperation(
   methodName: string,
